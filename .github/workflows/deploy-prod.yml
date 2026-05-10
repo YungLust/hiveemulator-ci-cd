@@ -21,7 +21,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u YungLust --password-stdin
-            cd ~/hiveemulator
+            cd ~/ci-cd/hiveemulator
             git pull origin main
             docker compose \
               -f docker-compose.yml \
