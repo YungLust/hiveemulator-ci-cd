@@ -5,7 +5,7 @@ services:
     ports: ["6379:6379"]
 
   communication-control:
-    image: ghcr.io/YungLust/communication-control:latest
+    image: ghcr.io/yunglust/communication-control:latest
     restart: unless-stopped
     ports: ["8080:8080"]
     environment:
@@ -13,7 +13,7 @@ services:
     depends_on: [redis]
 
   hivemind:
-    image: ghcr.io/YungLust/hivemind:latest
+    image: ghcr.io/yunglust/hivemind:latest
     restart: on-failure
     ports: ["5149:5149"]
     environment:
@@ -22,7 +22,7 @@ services:
     depends_on: [redis, communication-control]
 
   map-client:
-    image: ghcr.io/YungLust/map-client:latest
+    image: ghcr.io/yunglust/map-client:latest
     restart: unless-stopped
     ports: ["3000:80"]
     depends_on: [communication-control]
