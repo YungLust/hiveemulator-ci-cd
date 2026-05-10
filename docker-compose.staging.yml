@@ -1,0 +1,14 @@
+# staging uses different ports for dividing prod and dev branches, on only 1 server
+services:
+  redis:
+    container_name: staging_redis
+    ports: ["6380:6379"]
+  communication-control:
+    container_name: staging_communication_control
+    ports: ["8181:8080"]
+  hivemind:
+    container_name: staging_hivemind
+    ports: ["5249:5149"]
+  map-client:
+    container_name: staging_map_client
+    ports: ["3001:80"]

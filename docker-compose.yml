@@ -5,9 +5,7 @@ services:
     ports: ["6379:6379"]
 
   communication-control:
-    build:
-      context: .
-      dockerfile: src/CommunicationControl/DevOpsProject/Dockerfile.full
+    image: ghcr.io/YungLust/communication-control:latest
     restart: unless-stopped
     ports: ["8080:8080"]
     environment:
@@ -15,9 +13,7 @@ services:
     depends_on: [redis]
 
   hivemind:
-    build:
-      context: .
-      dockerfile: src/CommunicationControl/DevOpsProject.HiveMind.API/Dockerfile.full
+    image: ghcr.io/YungLust/hivemind:latest
     restart: on-failure
     ports: ["5149:5149"]
     environment:
@@ -26,8 +22,7 @@ services:
     depends_on: [redis, communication-control]
 
   map-client:
-    build:
-      context: src/MapClient
+    image: ghcr.io/YungLust/map-client:latest
     restart: unless-stopped
     ports: ["3000:80"]
     depends_on: [communication-control]
