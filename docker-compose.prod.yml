@@ -2,9 +2,13 @@
 services:
   redis:
     container_name: prod_redis
+    ports: ["6379:6379"]
   communication-control:
     container_name: prod_communication_control
+    ports: ["8080:8080"]
   hivemind:
     container_name: prod_hivemind
+    ports: ["5149:5149"]
   map-client:
     container_name: prod_map_client
+    ports: ["3000:80"]

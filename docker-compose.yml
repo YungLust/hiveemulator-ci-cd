@@ -2,12 +2,10 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    ports: ["6379:6379"]
 
   communication-control:
     image: ghcr.io/yunglust/communication-control:latest
     restart: unless-stopped
-    ports: ["8080:8080"]
     environment:
       - Redis__ConnectionString=redis:6379
     depends_on: [redis]
@@ -15,7 +13,6 @@ services:
   hivemind:
     image: ghcr.io/yunglust/hivemind:latest
     restart: on-failure
-    ports: ["5149:5149"]
     environment:
       - CommunicationConfiguration__CommunicationControlIP=communication-control
       - CommunicationConfiguration__CommunicationControlPort=8080
@@ -24,5 +21,4 @@ services:
   map-client:
     image: ghcr.io/yunglust/map-client:latest
     restart: unless-stopped
-    ports: ["3000:80"]
     depends_on: [communication-control]
