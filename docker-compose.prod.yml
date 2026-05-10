@@ -1,0 +1,10 @@
+# production uses default ports
+services:
+  redis:
+    container_name: prod_redis
+  communication-control:
+    container_name: prod_communication_control
+  hivemind:
+    container_name: prod_hivemind
+  map-client:
+    container_name: prod_map_client
