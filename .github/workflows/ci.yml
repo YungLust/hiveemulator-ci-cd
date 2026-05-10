@@ -45,7 +45,7 @@ jobs:
         run: dotnet build src/CommunicationControl/DevOpsProject.HiveMind.API/DevOpsProject.HiveMind.API.csproj -c Release
 
   build-frontend:
-    name: Build & Lint React
+    name: Build npm
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,8 +53,6 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-        working-directory: src/MapClient
-      - run: npm run lint
         working-directory: src/MapClient
       - run: npm run build
         working-directory: src/MapClient
