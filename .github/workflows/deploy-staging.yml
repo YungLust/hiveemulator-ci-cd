@@ -1,0 +1,36 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u YungLust --password-stdin
+            cd ~/hiveemulator
+            git pull origin dev
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.staging.yml \
+              -p staging \
+              pull
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.staging.yml \
+              -p staging \
+              up -d --remove-orphans
+            docker image prune -f

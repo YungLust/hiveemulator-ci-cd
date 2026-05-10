@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+jobs:
+  sast:
+    name: SAST (CodeQL)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    strategy:
+      matrix:
+        language: [csharp, javascript]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  build-backend:
+    name: Build .NET
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore
+        run: dotnet restore src/CommunicationControl/DevOpsProject/DevOpsProject.CommunicationControl.API.csproj
+      - name: Build Communication Control
+        run: dotnet build src/CommunicationControl/DevOpsProject/DevOpsProject.CommunicationControl.API.csproj --no-restore -c Release
+      - name: Build HiveMind API
+        run: dotnet build src/CommunicationControl/DevOpsProject.HiveMind.API/DevOpsProject.HiveMind.API.csproj -c Release
+
+  build-frontend:
+    name: Build & Lint React
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+        working-directory: src/MapClient
+      - run: npm run lint
+        working-directory: src/MapClient
+      - run: npm run build
+        working-directory: src/MapClient
+
+  docker:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set image tag
+        id: tag
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "TAG=latest" >> $GITHUB_OUTPUT
+          else
+            echo "TAG=dev" >> $GITHUB_OUTPUT
+          fi
+      - name: Build & push communication-control
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/CommunicationControl/DevOpsProject/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/communication-control:${{ steps.tag.outputs.TAG }}
+      - name: Build & push hivemind
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/CommunicationControl/DevOpsProject.HiveMind.API/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/hivemind:${{ steps.tag.outputs.TAG }}
+      - name: Build & push map-client
+        uses: docker/build-push-action@v5
+        with:
+          context: src/MapClient
+          file: src/MapClient/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/map-client:${{ steps.tag.outputs.TAG }}
