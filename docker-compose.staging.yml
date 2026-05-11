@@ -3,12 +3,18 @@ services:
   redis:
     container_name: staging_redis
     ports: ["6380:6379"]
+
   communication-control:
+    image: ghcr.io/yunglust/communication-control:dev
     container_name: staging_communication_control
     ports: ["8181:8080"]
+
   hivemind:
+    image: ghcr.io/yunglust/hivemind:dev
     container_name: staging_hivemind
     ports: ["5249:5149"]
+
   map-client:
+    image: ghcr.io/yunglust/map-client:dev
     container_name: staging_map_client
     ports: ["3001:80"]
