@@ -50,7 +50,7 @@ const Popup = ({ isVisible, coords, type, interferenceId, onConfirm, onCancel, o
                             onClick={() => onRemoveInterference(interferenceId)} 
                             style={{ marginRight: "10px", backgroundColor: "#dc3545", color: "white" }}
                         >
-                            Delete Interference
+                            Delete Interference!
                         </button>
                         <button onClick={onCancel}>Cancel</button>
                     </>
