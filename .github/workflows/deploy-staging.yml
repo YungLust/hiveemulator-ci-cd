@@ -1,8 +1,10 @@
 name: Deploy Staging
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI"]
     branches: [dev]
+    types: [completed]
   workflow_dispatch:
 
 jobs:
@@ -10,9 +12,10 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     environment: staging
+    # continue only if CI is successfull
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
-
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -32,5 +35,5 @@ jobs:
               -f docker-compose.yml \
               -f docker-compose.staging.yml \
               -p staging \
-              up -d --remove-orphans
+              up -d --remove-orphans --force-recreate
             docker image prune -f
